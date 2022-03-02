@@ -16,6 +16,8 @@ namespace app_aula_backend.Models
         [Required(ErrorMessage ="obrigatorio informar a placa!")]
         public string Placa { get; set; }
 
+        public ICollection<Consumo> Consumos { get; set; }
+
 
     }
 }

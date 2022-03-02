@@ -13,5 +13,6 @@ namespace app_aula_backend.Models
 
         }
         public DbSet<Veiculo> Veiculos { get; set; }
+        public DbSet<Consumo> Consumos { get; set; }
     }
 }
