@@ -9,22 +9,32 @@ using app_aula_backend.Models;
 
 namespace app_aula_backend.Controllers
 {
-    public class VeiculosController : Controller
+    public class UsuariosController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public VeiculosController(ApplicationDbContext context)
+        public UsuariosController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Veiculos
-        public async Task<IActionResult> Index()
+        public IActionResult Login()
         {
-            return View(await _context.Veiculos.ToListAsync());
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> Login([Bind("Id,Senha")] Usuario usuario)
+        {
+            return View();
         }
 
-        // GET: Veiculos/Details/5
+        // GET: Usuarios
+        public async Task<IActionResult> Index()
+        {
+            return View(await _context.Usuarios.ToListAsync());
+        }
+
+        // GET: Usuarios/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -32,57 +42,40 @@ namespace app_aula_backend.Controllers
                 return NotFound();
             }
 
-            var veiculo = await _context.Veiculos
+            var usuario = await _context.Usuarios
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (veiculo == null)
+            if (usuario == null)
             {
                 return NotFound();
             }
 
-            return View(veiculo);
+            return View(usuario);
         }
-        // GET: Veiculos/Details/5
-        public async Task<IActionResult> Relatorio(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
 
-            var veiculo = await _context.Veiculos
-                .Include(t => t.Consumos)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (veiculo == null)
-            {
-                return NotFound();
-            }
-
-            return View(veiculo);
-        }
-        // GET: Veiculos/Create
+        // GET: Usuarios/Create
         public IActionResult Create()
         {
             return View();
         }
 
-
-        // POST: Veiculos/Create
+        // POST: Usuarios/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Nome,Placa")] Veiculo veiculo)
+        public async Task<IActionResult> Create([Bind("Id,Nome,Senha,Perfil")] Usuario usuario)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(veiculo);
+                usuario.Senha = BCrypt.Net.BCrypt.HashPassword(usuario.Senha);
+                _context.Add(usuario);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(veiculo);
+            return View(usuario);
         }
 
-        // GET: Veiculos/Edit/5
+        // GET: Usuarios/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -90,22 +83,22 @@ namespace app_aula_backend.Controllers
                 return NotFound();
             }
 
-            var veiculo = await _context.Veiculos.FindAsync(id);
-            if (veiculo == null)
+            var usuario = await _context.Usuarios.FindAsync(id);
+            if (usuario == null)
             {
                 return NotFound();
             }
-            return View(veiculo);
+            return View(usuario);
         }
 
-        // POST: Veiculos/Edit/5
+        // POST: Usuarios/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Placa")] Veiculo veiculo)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Senha,Perfil")] Usuario usuario)
         {
-            if (id != veiculo.Id)
+            if (id != usuario.Id)
             {
                 return NotFound();
             }
@@ -114,12 +107,13 @@ namespace app_aula_backend.Controllers
             {
                 try
                 {
-                    _context.Update(veiculo);
+                    usuario.Senha = BCrypt.Net.BCrypt.HashPassword(usuario.Senha);
+                    _context.Update(usuario);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!VeiculoExists(veiculo.Id))
+                    if (!UsuarioExists(usuario.Id))
                     {
                         return NotFound();
                     }
@@ -130,10 +124,10 @@ namespace app_aula_backend.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(veiculo);
+            return View(usuario);
         }
 
-        // GET: Veiculos/Delete/5
+        // GET: Usuarios/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -141,30 +135,30 @@ namespace app_aula_backend.Controllers
                 return NotFound();
             }
 
-            var veiculo = await _context.Veiculos
+            var usuario = await _context.Usuarios
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (veiculo == null)
+            if (usuario == null)
             {
                 return NotFound();
             }
 
-            return View(veiculo);
+            return View(usuario);
         }
 
-        // POST: Veiculos/Delete/5
+        // POST: Usuarios/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var veiculo = await _context.Veiculos.FindAsync(id);
-            _context.Veiculos.Remove(veiculo);
+            var usuario = await _context.Usuarios.FindAsync(id);
+            _context.Usuarios.Remove(usuario);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool VeiculoExists(int id)
+        private bool UsuarioExists(int id)
         {
-            return _context.Veiculos.Any(e => e.Id == id);
+            return _context.Usuarios.Any(e => e.Id == id);
         }
     }
 }
